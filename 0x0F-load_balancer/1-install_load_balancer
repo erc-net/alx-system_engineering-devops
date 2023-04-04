@@ -10,11 +10,11 @@ apt-get -y install haproxy
 # edit config file
 server_config=\
 "
-frontend  yonas-frontend
+frontend  eric-frontend
         bind *:80
         mode http
-        default_backend yonas-backend
-backend yonas-backend
+        default_backend eric-backend
+backend eric-backend
         balance roundrobin
         server 124784-web-01 52.86.233.144:80 check
         server 124784-web-02 54.236.233.104:80 check
