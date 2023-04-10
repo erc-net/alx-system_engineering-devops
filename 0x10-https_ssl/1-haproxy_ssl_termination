@@ -1,4 +1,4 @@
-frontend  erc-frontend
+frontend erc-frontend
         bind *:80
         mode http
         timeout client 30s
@@ -8,24 +8,30 @@ frontend  erc-frontend
 frontend erc-https
         # Bind 443 with the generated letsencrypt cert.
         bind *:443 ssl crt /etc/haproxy/certs/www.esolutionslive.tech.pem
-        # Select a Challenge
+        #Select a Challenge
         acl letsencrypt-acl path_beg /.well-known/acme-challenge/
-        # Use the challenge backend if the challenge is set
+        #use the challenge backend if the challenge is set.
         use_backend letsencrypt-backend if letsencrypt-acl
         timeout client 30s
-        default_backend mondli-backend
-backend mondli-backend
+        default_backend erc-backend
+backend erc-backend
         mode http
         balance roundrobin
-        server 90966-web-01 54.162.46.10:80 check
-        server 90966-web-02 54.146.92.4:80 check
+        server 124784-web-01 52.86.233.144:80 check
+        server 124784-web-02 54.236.233.104:80 check
         timeout server 30s
         timeout connect 5s
+
+backend letsencrypt-backend
+        # Lets encrypt backend server
+        server letsencrypt 127.0.0.1:54321
+        timeout server 30s
+        timeout connect 30s
 global
         log /dev/log    local0
         log /dev/log    local1 notice
         chroot /var/lib/haproxy
-        stats socket /run/haproxy/admin.sock mode 660 level admin
+        stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
         stats timeout 30s
         user haproxy
         group haproxy
