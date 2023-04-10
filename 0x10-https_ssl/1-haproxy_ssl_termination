@@ -1,20 +1,20 @@
-frontend erc-frontend
+frontend eric-frontend
         bind *:80
         mode http
         timeout client 30s
-        default_backend erc-backend
+        default_backend eric-backend
 
 # Add a frontend to handle incoming HTTPS connections
-frontend erc-https
+frontend eric-https
         # Bind 443 with the generated letsencrypt cert.
         bind *:443 ssl crt /etc/haproxy/certs/www.esolutionslive.tech.pem
-        #Select a Challenge
+        # Select a Challenge
         acl letsencrypt-acl path_beg /.well-known/acme-challenge/
-        #use the challenge backend if the challenge is set.
+        # Use the challenge backend if the challenge is set
         use_backend letsencrypt-backend if letsencrypt-acl
         timeout client 30s
-        default_backend erc-backend
-backend erc-backend
+        default_backend eric-backend
+backend eric-backend
         mode http
         balance roundrobin
         server 124784-web-01 52.86.233.144:80 check
