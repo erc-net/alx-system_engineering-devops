@@ -1,45 +1,35 @@
 #!/usr/bin/python3
+"""Query a list of all hot posts on a given Reddit subreddit"""
+import requests
 
-"""
-importing requests module
-"""
 
-from requests import get
+def add_title(hot_list, hot_posts):
+    """ Add item into a list """
+    if len(hot_posts) == 0:
+        return
+    hot_list.append(hot_posts[0]['data']['title'])
+    hot_posts.pop(0)
+    add_title(hot_list, hot_posts)
 
 
 def recurse(subreddit, hot_list=[], after=None):
-    """
-    function that queries the Reddit API and returns a list containing the
-    titles of all hot articles for a given subreddit.
-    """
-
-    params = {'show': 'all'}
-
-    if subreddit is None or not isinstance(subreddit, str):
+    """ Query Reddit API """
+    headers = {
+        'User-Agent': 'Mozilla/5.0'
+    }
+    params = {
+        'after': after
+    }
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    res = requests.get(url, headers=headers, params=params,
+                       allow_redirects=False)
+    if res.status_code != 200:
         return None
 
-    user_agent = {'User-agent': 'Google Chrome Version 81.0.4044.129'}
-
-    url = 'https://www.reddit.com/r/{}/hot/.json?after={}'.format(subreddit,
-                                                                  after)
-
-    response = get(url, headers=user_agent, params=params)
-
-    if (response.status_code != 200):
-        return None
-
-    all_data = response.json()
-
-    try:
-        raw1 = all_data.get('data').get('children')
-        after = all_data.get('data').get('after')
-
-        if after is None:
-            return hot_list
-
-        for i in raw1:
-            hot_list.append(i.get('data').get('title'))
-
-        return recurse(subreddit, hot_list, after)
-    except:
-        print("None")
+    body = res.json()
+    hot_posts = body['data']['children']
+    add_title(hot_list, hot_posts)
+    after = body['data']['after']
+    if not after:
+        return hot_list
+    return recurse(subreddit, hot_list=hot_list, after=after)
